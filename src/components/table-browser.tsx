@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Connection, Table } from "@/lib/types";
 import { useTables, useTableColumns, useQuery } from "@/lib/hooks";
-import { Loader2, Database, Table as TableIcon, RefreshCw, Edit, Trash2, Plus } from "lucide-react";
+import { Loader2, Database, Table as TableIcon, RefreshCw, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table as UITable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryResults } from "@/components/query-results";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TableBrowserProps {
   connection: Connection;
@@ -14,7 +14,7 @@ interface TableBrowserProps {
 export function TableBrowser({ connection }: TableBrowserProps) {
   const { isLoading, tables, error, refetchTables } = useTables(connection);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [tableView, setTableView] = useState<"structure" | "data">("structure");
+  const [query, setQuery] = useState<string>("");
   
   const { columns, isLoading: columnsLoading } = useTableColumns(
     connection,
@@ -22,34 +22,27 @@ export function TableBrowser({ connection }: TableBrowserProps) {
     selectedTable?.schema || "public"
   );
 
-  const { isLoading: dataLoading, result: tableData, runQuery } = useQuery();
+  const { isLoading: queryLoading, result: queryResult, runQuery } = useQuery();
 
   const handleSelectTable = async (table: Table) => {
     setSelectedTable(table);
-    setTableView("structure");
     
-    // We'll load data when the user switches to the data tab
+    // Generate and run the query for this table
+    const schemaPrefix = table.schema !== "public" ? `${table.schema}.` : "";
+    const tableQuery = `SELECT * FROM "${schemaPrefix}${table.name}" LIMIT 100`;
+    setQuery(tableQuery);
+    await runQuery(connection, tableQuery);
   };
   
-  const loadTableData = async () => {
-    if (!selectedTable) return;
-    
-    const query = `SELECT * FROM "${selectedTable.schema}"."${selectedTable.name}" LIMIT 100`;
+  const handleRunQuery = async () => {
+    if (!query.trim()) return;
     await runQuery(connection, query);
   };
 
-  // When the user switches to the data tab, load the data
-  const handleViewChange = (view: "structure" | "data") => {
-    setTableView(view);
-    if (view === "data" && selectedTable && !tableData) {
-      loadTableData();
-    }
-  };
-
   return (
-    <div className="flex flex-col space-y-4 h-full">
+    <div className="flex flex-col space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Database Tables</h3>
+        <h3 className="text-lg font-medium">Database Explorer</h3>
         <Button
           size="sm"
           variant="outline"
@@ -61,7 +54,7 @@ export function TableBrowser({ connection }: TableBrowserProps) {
           ) : (
             <RefreshCw className="h-4 w-4 mr-1" />
           )}
-          Refresh
+          Refresh Tables
         </Button>
       </div>
 
@@ -71,8 +64,9 @@ export function TableBrowser({ connection }: TableBrowserProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-full">
-        <div className="border rounded-md p-2 overflow-y-auto max-h-[calc(100vh-250px)]">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Table list */}
+        <div className="md:col-span-3 border rounded-md p-3 overflow-y-auto h-[calc(100vh-350px)]">
           {isLoading ? (
             <div className="flex justify-center items-center h-32">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -102,6 +96,11 @@ export function TableBrowser({ connection }: TableBrowserProps) {
                         ? `${table.schema}.${table.name}`
                         : table.name}
                     </span>
+                    {table.rowCount !== undefined && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {table.rowCount.toLocaleString()}
+                      </span>
+                    )}
                   </Button>
                 </li>
               ))}
@@ -109,10 +108,12 @@ export function TableBrowser({ connection }: TableBrowserProps) {
           )}
         </div>
 
-        <div className="col-span-3 border rounded-md p-4 overflow-hidden max-h-[calc(100vh-250px)]">
+        {/* Main content area */}
+        <div className="md:col-span-9">
           {selectedTable ? (
-            <div className="space-y-4 h-full flex flex-col">
-              <div className="flex justify-between items-center">
+            <div className="space-y-4">
+              {/* Table metadata */}
+              <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium">
                     {selectedTable.schema !== "public"
@@ -126,97 +127,101 @@ export function TableBrowser({ connection }: TableBrowserProps) {
                   )}
                 </div>
                 
-                <Tabs value={tableView} onValueChange={(v) => handleViewChange(v as "structure" | "data")}>
-                  <TabsList>
-                    <TabsTrigger value="structure">Structure</TabsTrigger>
-                    <TabsTrigger value="data">Data</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Insert Row
+                  </Button>
+                </div>
               </div>
               
-              <div className="overflow-auto flex-1">
-                {tableView === "structure" ? (
-                  columnsLoading ? (
+              {/* Columns/structure info */}
+              <div className="border rounded-md p-3">
+                <h5 className="font-medium mb-2">Table Structure</h5>
+                {columnsLoading ? (
+                  <div className="flex justify-center items-center h-20">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <UITable>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Column</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Nullable</TableHead>
+                        <TableHead>Key</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {columns.map((column) => (
+                        <TableRow key={column.name}>
+                          <TableCell className="font-medium">
+                            {column.name}
+                          </TableCell>
+                          <TableCell>{column.dataType}</TableCell>
+                          <TableCell>
+                            {column.nullable ? "YES" : "NO"}
+                          </TableCell>
+                          <TableCell>
+                            {column.isPrimaryKey
+                              ? "PK"
+                              : column.isForeignKey
+                              ? "FK"
+                              : ""}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </UITable>
+                )}
+              </div>
+              
+              {/* SQL editor */}
+              <div className="border rounded-md p-3">
+                <div className="flex justify-between items-center mb-2">
+                  <h5 className="font-medium">SQL Query</h5>
+                  <Button
+                    size="sm"
+                    onClick={handleRunQuery}
+                    disabled={!query.trim() || queryLoading}
+                  >
+                    {queryLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        Running...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Run Query
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <Textarea
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="font-mono h-28 mb-2"
+                />
+                
+                {/* Results */}
+                <div className="overflow-auto max-h-[calc(100vh-600px)]">
+                  {queryLoading ? (
                     <div className="flex justify-center items-center h-32">
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
+                  ) : queryResult ? (
+                    <QueryResults result={queryResult} />
                   ) : (
-                    <UITable>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Column</TableHead>
-                          <TableHead>Type</TableHead>
-                          <TableHead>Nullable</TableHead>
-                          <TableHead>Default</TableHead>
-                          <TableHead>Key</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {columns.map((column) => (
-                          <TableRow key={column.name}>
-                            <TableCell className="font-medium">
-                              {column.name}
-                            </TableCell>
-                            <TableCell>{column.dataType}</TableCell>
-                            <TableCell>
-                              {column.nullable ? "YES" : "NO"}
-                            </TableCell>
-                            <TableCell>
-                              {column.defaultValue || ""}
-                            </TableCell>
-                            <TableCell>
-                              {column.isPrimaryKey
-                                ? "PK"
-                                : column.isForeignKey
-                                ? "FK"
-                                : ""}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </UITable>
-                  )
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <Button 
-                        size="sm" 
-                        onClick={loadTableData}
-                        disabled={dataLoading}
-                      >
-                        {dataLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                        ) : (
-                          <RefreshCw className="h-4 w-4 mr-1" />
-                        )}
-                        Refresh
-                      </Button>
-                      
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-4 w-4 mr-1" />
-                          Insert
-                        </Button>
-                      </div>
+                    <div className="flex justify-center items-center h-32 text-muted-foreground">
+                      <p>Run query to see results</p>
                     </div>
-                    
-                    {dataLoading ? (
-                      <div className="flex justify-center items-center h-32">
-                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : tableData ? (
-                      <QueryResults result={tableData} editMode={true} />
-                    ) : (
-                      <div className="flex justify-center items-center h-32 text-muted-foreground">
-                        <p>No data loaded yet</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-350px)] text-muted-foreground">
               <TableIcon className="h-8 w-8 mb-2" />
               <p>Select a table to view its structure and data</p>
             </div>

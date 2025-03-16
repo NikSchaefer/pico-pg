@@ -22,7 +22,7 @@ export function ConnectionTest({ connection }: ConnectionTestProps) {
       <Button 
         onClick={handleTest} 
         variant="outline" 
-        disabled={isLoading}
+        loading={isLoading}
       >
         {isLoading ? (
           <>
