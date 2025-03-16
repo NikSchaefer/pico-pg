@@ -10,19 +10,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Database, Edit, ExternalLink, Trash2 } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Database, Edit, Trash2 } from "lucide-react";
+
 import { Connection } from "@/lib/types";
 import { ConnectionDialog } from "./connection-dialog";
 import { useConnections } from "@/app/context";
-import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 
 interface ConnectionListProps {
   connections: Connection[];
@@ -57,77 +50,57 @@ export function ConnectionList({ connections }: ConnectionListProps) {
     setEditingConnection(undefined);
   };
 
-  const formatLastConnected = (dateString?: string) => {
-    if (!dateString) return "Never";
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-    } catch (e) {
-      return "Unknown";
-    }
-  };
-
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Host</TableHead>
-            <TableHead>Database</TableHead>
-            <TableHead>Username</TableHead>
-            <TableHead>Last Connected</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {connections.map((connection) => (
-            <TableRow key={connection.id}>
-              <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4 text-muted-foreground" />
-                  {connection.name}
-                </div>
-              </TableCell>
-              <TableCell>
-                {connection.host}:{connection.port}
-              </TableCell>
-              <TableCell>{connection.database}</TableCell>
-              <TableCell>{connection.username}</TableCell>
-              <TableCell>
-                {formatLastConnected(connection.lastConnected)}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button 
-                    size="icon" 
-                    variant="ghost" 
-                    title="Connect"
-                    onClick={() => window.location.href = `/connection/${connection.id}`}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    title="Edit"
-                    onClick={() => handleEdit(connection)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    title="Delete"
-                    onClick={() => handleDelete(connection.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="flex flex-col flex-wrap mx-auto max-w-6xl">
+        {connections.map((connection) => (
+          <div
+            key={connection.id}
+            className="group max-w-sm w-full bg-card border rounded-lg shadow-sm hover:shadow transition-all duration-200 overflow-hidden flex flex-col h-full"
+          >
+            <Link
+              href={`/connection/${connection.id}`}
+              className="p-3 cursor-pointer flex-grow"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Database className="h-4 w-4 text-primary" />
+                <h3 className="font-medium">{connection.name}</h3>
+              </div>
+
+              <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                <div>{connection.database}</div>
+                <div>{connection.host}</div>
+                {connection.id === "added-recently" && (
+                  <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full text-[10px]">
+                    New
+                  </span>
+                )}
+              </div>
+            </Link>
+
+            <div className="border-t p-1 bg-muted/20 flex items-center justify-end gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                title="Edit"
+                onClick={() => handleEdit(connection)}
+                className="h-7 w-7"
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                title="Delete"
+                onClick={() => handleDelete(connection.id)}
+                className="h-7 w-7"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Edit Connection Dialog */}
       {editingConnection && (

@@ -1,3 +1,5 @@
+import { ConnectionOptions } from "node:tls";
+
 export interface Connection {
   id: string;
   name: string;
@@ -6,7 +8,7 @@ export interface Connection {
   database: string;
   username: string;
   password: string; // Should be encrypted when stored
-  sslMode?: boolean;
+  sslMode?: ConnectionOptions;
   lastConnected?: string;
   createdAt: string;
   updatedAt: string;

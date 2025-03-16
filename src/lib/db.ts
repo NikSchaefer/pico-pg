@@ -3,6 +3,13 @@
 import { Connection, QueryResult, Database, Table, Column } from "@/lib/types";
 import { Pool } from "pg";
 
+function getSSL(sslMode: string) {
+  if (sslMode === "disable") {
+    return false;
+  }
+  return sslMode;
+}
+
 export async function testConnection(
   connection: Connection,
 ): Promise<{ success: boolean; error?: unknown }> {
@@ -12,7 +19,7 @@ export async function testConnection(
     database: connection.database,
     user: connection.username,
     password: connection.password,
-    ssl: connection.sslMode,
+    ssl: getSSL(connection.sslMode),
   });
 
   try {
@@ -36,7 +43,7 @@ export async function executeQuery(
     database: connection.database,
     user: connection.username,
     password: connection.password,
-    ssl: connection.sslMode,
+    ssl: getSSL(connection.sslMode),
   });
 
   try {
@@ -67,7 +74,7 @@ export async function getDatabases(
     database: connection.database,
     user: connection.username,
     password: connection.password,
-    ssl: connection.sslMode,
+    ssl: getSSL(connection.sslMode),
   });
 
   try {
@@ -98,7 +105,7 @@ export async function getTables(connection: Connection): Promise<Table[]> {
     database: connection.database,
     user: connection.username,
     password: connection.password,
-    ssl: connection.sslMode,
+    ssl: getSSL(connection.sslMode),
   });
 
   try {
@@ -151,7 +158,7 @@ export async function getTableColumns(
     database: connection.database,
     user: connection.username,
     password: connection.password,
-    ssl: connection.sslMode,
+    ssl: getSSL(connection.sslMode),
   });
 
   try {

@@ -1,5 +1,12 @@
 import { QueryResult } from "@/lib/types";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface QueryResultsProps {
   result: QueryResult;
@@ -34,9 +41,14 @@ export function QueryResults({ result }: QueryResultsProps) {
     return (
       <div className="mt-4 space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="font-medium">Affected rows: {rowCount}</span>
+          <div className="flex items-center gap-3">
+            <span className="font-medium">Affected rows: {rowCount}</span>
+            {rowCount > 0 && (
+              <span className="status-edited">Edited {rowCount}</span>
+            )}
+          </div>
           <span className="text-muted-foreground">
-            Completed in {formatExecutionTime(executionTime)}
+            {formatExecutionTime(executionTime)}
           </span>
         </div>
       </div>
@@ -44,36 +56,38 @@ export function QueryResults({ result }: QueryResultsProps) {
   }
 
   return (
-    <div className="mt-4 space-y-2">
-      <div className="flex justify-between text-sm">
+    <div className="space-y-2 h-full flex flex-col">
+      <div className="flex p-4 justify-between text-sm">
         <span className="font-medium">
           {rowCount} {rowCount === 1 ? "row" : "rows"}
         </span>
         <span className="text-muted-foreground">
-          Completed in {formatExecutionTime(executionTime)}
+          {formatExecutionTime(executionTime)}
         </span>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columns.map((column, index) => (
-              <TableHead key={index}>{column}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {columns.map((column, colIndex) => (
-                <TableCell key={colIndex}>
-                  {renderCell(row[column])}
-                </TableCell>
+      <div className="flex-grow overflow-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column, index) => (
+                <TableHead key={index}>{column}</TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {columns.map((column, colIndex) => (
+                  <TableCell key={colIndex}>
+                    {renderCell(row[column])}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

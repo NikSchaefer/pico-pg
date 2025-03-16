@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyConnections } from "@/components/empty-connections";
 import { ConnectionList } from "@/components/connection-list";
-import { PageHeader } from "@/components/page-header";
 import { ConnectionDialog } from "@/components/connection-dialog";
 import { useConnections } from "./context";
 import { Connection } from "@/lib/types";
@@ -19,13 +18,11 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-6 max-w-7xl">
-      <PageHeader />
-
+    <main className="container mx-auto px-6 py-6 max-w-7xl">
       <div className="mt-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Database Connections</CardTitle>
+            <CardTitle>Databases</CardTitle>
             <Button size="sm" onClick={() => setOpenDialog(true)}>
               New Connection
             </Button>
@@ -44,10 +41,10 @@ export default function Home() {
         </Card>
       </div>
 
-      <ConnectionDialog 
-        open={openDialog} 
-        onOpenChange={setOpenDialog} 
-        onSave={handleSaveConnection} 
+      <ConnectionDialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        onSave={handleSaveConnection}
       />
     </main>
   );

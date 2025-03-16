@@ -54,8 +54,11 @@ export function CommandMenu({ onNewConnection }: CommandMenuProps) {
         <CommandEmpty>No results found.</CommandEmpty>
 
         <CommandGroup heading="Connections">
-          <CommandItem onSelect={handleNewConnection}>
-            <Plus className="mr-2 h-4 w-4" />
+          <CommandItem
+            onSelect={handleNewConnection}
+            className="hover:bg-muted/70"
+          >
+            <Plus className="mr-2 h-4 w-4 text-primary" />
             Add New Connection
           </CommandItem>
           <CommandItem onSelect={handleRefreshConnections}>

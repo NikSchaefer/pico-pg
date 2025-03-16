@@ -7,7 +7,14 @@ import { Connection } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { testConnection } from "@/lib/db";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { ConnectionOptions } from "node:tls";
 
 interface ConnectionFormProps {
   connection?: Connection;
@@ -30,7 +37,7 @@ export function ConnectionForm({
       database: "",
       username: "postgres",
       password: "",
-      sslMode: true,
+      sslMode: "require" as ConnectionOptions,
     },
   );
 
@@ -87,14 +94,18 @@ export function ConnectionForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">
-            Connection Name <span className="text-destructive">*</span>
+          <label
+            htmlFor="name"
+            className="text-sm font-medium flex items-center"
+          >
+            Connection Name <span className="text-destructive ml-1">*</span>
           </label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             placeholder="My Database"
+            className="bg-input border-border focus-visible:border-primary"
             required
           />
         </div>
@@ -166,14 +177,24 @@ export function ConnectionForm({
         </div>
 
         <div className="space-y-2">
-          <Checkbox
-            checked={formData.sslMode}
-            onCheckedChange={(checked) => handleChange("sslMode", checked)}
-            id="sslMode"
-          />
           <label htmlFor="sslMode" className="text-sm font-medium">
             SSL Mode
           </label>
+          <Select
+            value={formData.sslMode as string}
+            onValueChange={(val) => handleChange("sslMode", val)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="require">Require</SelectItem>
+              <SelectItem value="verify-ca">Verify CA</SelectItem>
+              <SelectItem value="verify-full">Verify Full</SelectItem>
+              <SelectItem value="disable">Disable</SelectItem>
+              <SelectItem value="prefer">Prefer</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
