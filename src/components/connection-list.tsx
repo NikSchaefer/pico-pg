@@ -152,7 +152,7 @@ export function ConnectionList({
   onDelete?: (connection: Connection) => void;
 }) {
   return (
-    <div className="flex mb-4 justify-center flex-wrap gap-4 max-w-5xl mx-auto">
+    <div className="flex my-4 justify-center flex-wrap gap-4 max-w-5xl mx-auto">
       {connections.map((connection) => (
         <DatabaseConnectionCard
           key={connection.id}

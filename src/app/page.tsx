@@ -9,13 +9,8 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 
 export default function Home() {
-  const {
-    connections,
-    addConnection,
-    updateConnection,
-    deleteConnection,
-    loading,
-  } = useConnections();
+  const { connections, addConnection, updateConnection, deleteConnection } =
+    useConnections();
   const [openDialog, setOpenDialog] = useState(false);
   const [editingConnection, setEditingConnection] = useState<
     Connection | undefined
@@ -53,7 +48,7 @@ export default function Home() {
 
   return (
     <main className="w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] h-screen flex justify-center items-center flex-col mx-auto pb-20">
-      <div className="my-8 text-center">
+      <div className="text-center">
         <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2 text-primary">
           Pico PG
         </h1>
@@ -62,11 +57,8 @@ export default function Home() {
           A simple, lightweight, local-only, and open source Postgres client.
         </p>
       </div>
-      {loading ? (
-        <div className="py-8 text-center text-muted-foreground">
-          Loading connections...
-        </div>
-      ) : (
+
+      {connections.length > 0 && (
         <ConnectionList
           connections={connections}
           onEdit={handleEditConnection}
@@ -74,7 +66,11 @@ export default function Home() {
         />
       )}
 
-      <Button variant="outline" onClick={handleOpenNewConnectionDialog}>
+      <Button
+        variant="outline"
+        className="mt-4"
+        onClick={handleOpenNewConnectionDialog}
+      >
         <PlusIcon className="h-4 w-4" />
         Add connection
       </Button>
