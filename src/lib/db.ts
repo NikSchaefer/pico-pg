@@ -2,16 +2,22 @@
 
 import { Connection, QueryResult, Database, Table, Column } from "@/lib/types";
 import { Pool } from "pg";
+import { ConnectionOptions } from "tls";
 
-function getSSL(sslMode: string) {
+function getSSL(
+  sslMode: string | ConnectionOptions | undefined
+): boolean | ConnectionOptions | undefined {
   if (sslMode === "disable") {
     return false;
+  }
+  if (typeof sslMode === "string") {
+    return true;
   }
   return sslMode;
 }
 
 export async function testConnection(
-  connection: Connection,
+  connection: Connection
 ): Promise<{ success: boolean; error?: unknown }> {
   const client = new Pool({
     host: connection.host,
@@ -35,7 +41,7 @@ export async function testConnection(
 
 export async function executeQuery(
   connection: Connection,
-  query: string,
+  query: string
 ): Promise<QueryResult> {
   const client = new Pool({
     host: connection.host,
@@ -66,7 +72,7 @@ export async function executeQuery(
 }
 
 export async function getDatabases(
-  connection: Connection,
+  connection: Connection
 ): Promise<Database[]> {
   const client = new Pool({
     host: connection.host,
@@ -127,7 +133,7 @@ export async function getTables(connection: Connection): Promise<Table[]> {
       const columns = await getTableColumns(
         connection,
         tableRow.name,
-        tableRow.schema,
+        tableRow.schema
       );
 
       tables.push({
@@ -150,7 +156,7 @@ export async function getTables(connection: Connection): Promise<Table[]> {
 export async function getTableColumns(
   connection: Connection,
   table: string,
-  schema: string = "public",
+  schema: string = "public"
 ): Promise<Column[]> {
   const client = new Pool({
     host: connection.host,
@@ -174,7 +180,7 @@ export async function getTableColumns(
       WHERE table_schema = $1 AND table_name = $2
       ORDER BY ordinal_position
     `,
-      [schema, table],
+      [schema, table]
     );
 
     // Get primary key information
@@ -188,7 +194,7 @@ export async function getTableColumns(
       AND tc.table_schema = $1
       AND tc.table_name = $2
     `,
-      [schema, table],
+      [schema, table]
     );
 
     const primaryKeys = new Set(pkResult.rows.map((row) => row.column_name));
@@ -204,7 +210,7 @@ export async function getTableColumns(
       AND tc.table_schema = $1
       AND tc.table_name = $2
     `,
-      [schema, table],
+      [schema, table]
     );
 
     const foreignKeys = new Set(fkResult.rows.map((row) => row.column_name));
@@ -221,7 +227,7 @@ export async function getTableColumns(
   } catch (error) {
     console.error(`Failed to get columns for table ${schema}.${table}:`, error);
     throw new Error(
-      `Failed to get columns for table ${schema}.${table}: ${error}`,
+      `Failed to get columns for table ${schema}.${table}: ${error}`
     );
   } finally {
     await client.end();
@@ -229,7 +235,7 @@ export async function getTableColumns(
 }
 
 export async function updateLastConnectedTime(
-  connection: Connection,
+  connection: Connection
 ): Promise<Connection> {
   try {
     // Test the connection is valid before updating

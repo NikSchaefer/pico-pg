@@ -22,9 +22,9 @@ export function useConnectionTest() {
 
     try {
       const result = await testConnection(connection);
-      setIsConnected(result);
+      setIsConnected(result.success);
 
-      if (result) {
+      if (result.success) {
         // Update the last connected time in storage
         const updatedConnection = await updateLastConnectedTime(connection);
         updateConnection(updatedConnection);
