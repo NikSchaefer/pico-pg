@@ -3,36 +3,64 @@
 import { cn } from "@/lib/utils";
 import { Connection } from "@/lib/types";
 import Link from "next/link";
-import { Icon } from "lucide-react";
+import { Icon, MoreHorizontal } from "lucide-react";
 import { elephant } from "@lucide/lab";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useConnectionTest } from "@/lib/hooks";
-import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { AlertCircle, Edit, Copy, Trash2, Play } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DatabaseConnectionCardProps {
   connection: Connection;
   className?: string;
+  onEdit?: (connection: Connection) => void;
+  onDelete?: (connection: Connection) => void;
 }
 
 const DatabaseConnectionCard: React.FC<DatabaseConnectionCardProps> = ({
   connection,
   className,
+  onEdit,
+  onDelete,
 }) => {
   const { isLoading, isConnected, testConnection } = useConnectionTest();
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Automatically test connection when component mounts
   useEffect(() => {
     testConnection(connection);
   }, [connection, testConnection]);
 
+  const handleCopyConnectionString = async () => {
+    const connectionString = `postgresql://${connection.username}:${connection.password}@${connection.host}:${connection.port}/${connection.database}`;
+    try {
+      await navigator.clipboard.writeText(connectionString);
+      toast.success("Connection string copied to clipboard");
+    } catch {
+      toast.error("Failed to copy connection string");
+    }
+  };
+
+  const handleConnect = () => {
+    window.location.href = `/connection/${connection.id}`;
+  };
+
   return (
     <div
       className={cn(
-        "relative w-68 h-36 rounded-md overflow-hidden cursor-pointer",
+        "relative w-68 h-36 rounded-md overflow-hidden cursor-pointer group",
         "bg-background border border-border",
         "hover:bg-gray-50",
         className
       )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Connection failure indicator - top right */}
       {!isLoading && isConnected === false && (
@@ -45,6 +73,46 @@ const DatabaseConnectionCard: React.FC<DatabaseConnectionCardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Three-dot menu - top right, only visible on hover */}
+      <div className="absolute top-2 right-2 z-30">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={cn(
+                "p-1 rounded-md transition-opacity",
+                "hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500",
+                isHovered ? "opacity-100" : "opacity-0"
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreHorizontal className="h-4 w-4 text-gray-600" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuItem onClick={handleConnect}>
+              <Play className="mr-2 h-4 w-4" />
+              Connect
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit?.(connection)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Connection
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCopyConnectionString}>
+              <Copy className="mr-2 h-4 w-4" />
+              Copy Connection String
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onDelete?.(connection)}
+              className="text-red-600 focus:text-red-600"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <Link href={`/connection/${connection.id}`} className="block h-full">
         <div className="relative z-10 p-4 h-full flex flex-col">
@@ -74,11 +142,24 @@ const DatabaseConnectionCard: React.FC<DatabaseConnectionCardProps> = ({
   );
 };
 
-export function ConnectionList({ connections }: { connections: Connection[] }) {
+export function ConnectionList({
+  connections,
+  onEdit,
+  onDelete,
+}: {
+  connections: Connection[];
+  onEdit?: (connection: Connection) => void;
+  onDelete?: (connection: Connection) => void;
+}) {
   return (
-    <div className="flex justify-center flex-wrap gap-4 max-w-5xl mx-auto">
+    <div className="flex mb-4 justify-center flex-wrap gap-4 max-w-5xl mx-auto">
       {connections.map((connection) => (
-        <DatabaseConnectionCard key={connection.id} connection={connection} />
+        <DatabaseConnectionCard
+          key={connection.id}
+          connection={connection}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

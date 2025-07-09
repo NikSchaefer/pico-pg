@@ -1,20 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { EmptyConnections } from "@/components/empty-connections";
 import { ConnectionList } from "@/components/connection-list";
 import { ConnectionDialog } from "@/components/connection-dialog";
 import { useConnections } from "./context";
 import { Connection } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 
 export default function Home() {
-  const { connections, addConnection, loading } = useConnections();
+  const {
+    connections,
+    addConnection,
+    updateConnection,
+    deleteConnection,
+    loading,
+  } = useConnections();
   const [openDialog, setOpenDialog] = useState(false);
+  const [editingConnection, setEditingConnection] = useState<
+    Connection | undefined
+  >(undefined);
 
   const handleSaveConnection = (connection: Connection) => {
-    addConnection(connection);
+    if (editingConnection) {
+      updateConnection(connection);
+      setEditingConnection(undefined);
+    } else {
+      addConnection(connection);
+    }
     setOpenDialog(false);
+  };
+
+  const handleEditConnection = (connection: Connection) => {
+    setEditingConnection(connection);
+    setOpenDialog(true);
+  };
+
+  const handleDeleteConnection = (connection: Connection) => {
+    if (
+      confirm(
+        `Are you sure you want to delete the connection "${connection.name}"?`
+      )
+    ) {
+      deleteConnection(connection.id);
+    }
+  };
+
+  const handleOpenNewConnectionDialog = () => {
+    setEditingConnection(undefined);
+    setOpenDialog(true);
   };
 
   return (
@@ -25,27 +59,30 @@ export default function Home() {
         </h1>
 
         <p className="text-sm text-muted-foreground">
-          A simple PostgreSQL client.{" "}
-          <Button variant="ghost" className="font-normal p-0 w-fit text-sm">
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </Button>{" "}
-          to get started
+          A simple, local Postgres client.
         </p>
       </div>
       {loading ? (
         <div className="py-8 text-center text-muted-foreground">
           Loading connections...
         </div>
-      ) : connections.length > 0 ? (
-        <ConnectionList connections={connections} />
       ) : (
-        <EmptyConnections onAddConnection={() => setOpenDialog(true)} />
+        <ConnectionList
+          connections={connections}
+          onEdit={handleEditConnection}
+          onDelete={handleDeleteConnection}
+        />
       )}
+
+      <Button variant="outline" onClick={handleOpenNewConnectionDialog}>
+        <PlusIcon className="h-4 w-4" />
+        Add connection
+      </Button>
+
       <ConnectionDialog
         open={openDialog}
         onOpenChange={setOpenDialog}
+        connection={editingConnection}
         onSave={handleSaveConnection}
       />
 
