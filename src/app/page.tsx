@@ -59,7 +59,7 @@ export default function Home() {
         </h1>
 
         <p className="text-sm text-muted-foreground">
-          A simple, local Postgres client.
+          A simple, lightweight, local-only, and open source Postgres client.
         </p>
       </div>
       {loading ? (
