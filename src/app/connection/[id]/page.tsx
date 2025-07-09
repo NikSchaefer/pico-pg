@@ -31,7 +31,7 @@ export default function ConnectionDetailPage({
 
   // Tables list
   const { tables, isLoading: tablesLoading } = useTables(connection);
-  
+
   const filteredTables = tables.filter((table) => table.name);
 
   useEffect(() => {

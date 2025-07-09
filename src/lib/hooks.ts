@@ -28,20 +28,16 @@ export function useConnectionTest() {
         // Update the last connected time in storage
         const updatedConnection = await updateLastConnectedTime(connection);
         updateConnection(updatedConnection);
-
-        toast.success("Connected successfully");
       } else {
         setError("Could not connect to database");
-        toast.error("Connection failed");
       }
 
       return result;
     } catch (err) {
       setIsConnected(false);
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
+        err instanceof Error ? err.message : "An unknown error occurred"
       );
-      toast.error("Connection error");
       return false;
     } finally {
       setIsLoading(false);
@@ -78,14 +74,14 @@ export function useQuery() {
         return queryResult;
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "An unknown error occurred",
+          err instanceof Error ? err.message : "An unknown error occurred"
         );
         return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [],
+    []
   );
 
   return {
@@ -119,7 +115,7 @@ export function useTables(connection: Connection | null) {
       return result;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
+        err instanceof Error ? err.message : "An unknown error occurred"
       );
       toast.error("Failed to fetch tables");
       return [];
@@ -148,7 +144,7 @@ export function useTables(connection: Connection | null) {
 export function useTableColumns(
   connection: Connection | null,
   table: string,
-  schema: string = "public",
+  schema: string = "public"
 ) {
   const [isLoading, setIsLoading] = useState(false);
   const [columns, setColumns] = useState<Column[]>([]);
@@ -166,7 +162,7 @@ export function useTableColumns(
       return result;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
+        err instanceof Error ? err.message : "An unknown error occurred"
       );
       toast.error("Failed to fetch columns");
       return [];

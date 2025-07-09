@@ -13,6 +13,7 @@ import {
 import { Loader2, TableIcon } from "lucide-react";
 import { Connection, Table } from "@/lib/types";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface AppSidebarProps {
   connection: Connection;
@@ -33,10 +34,7 @@ export function AppSidebar({
     <Sidebar>
       <SidebarHeader className="px-8 pt-6 pb-3">
         <Link href="/">
-          <h1 className="semibold text-xl">
-            <span className="font-semibold">DB</span>{" "}
-            <span className="text-foreground">/</span> {connection.name}
-          </h1>
+          <h1 className="font-medium text-xl">{connection.name}</h1>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -55,7 +53,12 @@ export function AppSidebar({
                     value={table.name}
                     onClick={() => onTableSelect(table)}
                   >
-                    <SidebarMenuButton>
+                    <SidebarMenuButton
+                      className={cn(
+                        "text-sm",
+                        selectedTable?.name === table.name && "font-semibold"
+                      )}
+                    >
                       <TableIcon className="mr-2 h-4 w-4" />
                       {table.name}
                     </SidebarMenuButton>

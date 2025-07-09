@@ -1,138 +1,85 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Database, Edit, Trash2 } from "lucide-react";
+"use client";
 
+import { cn } from "@/lib/utils";
 import { Connection } from "@/lib/types";
-import { ConnectionDialog } from "./connection-dialog";
-import { useConnections } from "@/app/context";
 import Link from "next/link";
+import { Icon } from "lucide-react";
+import { elephant } from "@lucide/lab";
+import { useEffect } from "react";
+import { useConnectionTest } from "@/lib/hooks";
+import { AlertCircle } from "lucide-react";
 
-interface ConnectionListProps {
-  connections: Connection[];
+interface DatabaseConnectionCardProps {
+  connection: Connection;
+  className?: string;
 }
 
-export function ConnectionList({ connections }: ConnectionListProps) {
-  const { updateConnection, deleteConnection } = useConnections();
-  const [editingConnection, setEditingConnection] = useState<
-    Connection | undefined
-  >(undefined);
-  const [deletingConnectionId, setDeletingConnectionId] = useState<
-    string | null
-  >(null);
+const DatabaseConnectionCard: React.FC<DatabaseConnectionCardProps> = ({
+  connection,
+  className,
+}) => {
+  const { isLoading, isConnected, testConnection } = useConnectionTest();
 
-  const handleEdit = (connection: Connection) => {
-    setEditingConnection(connection);
-  };
-
-  const handleDelete = (id: string) => {
-    setDeletingConnectionId(id);
-  };
-
-  const confirmDelete = () => {
-    if (deletingConnectionId) {
-      deleteConnection(deletingConnectionId);
-      setDeletingConnectionId(null);
-    }
-  };
-
-  const handleUpdateConnection = (connection: Connection) => {
-    updateConnection(connection);
-    setEditingConnection(undefined);
-  };
+  // Automatically test connection when component mounts
+  useEffect(() => {
+    testConnection(connection);
+  }, [connection, testConnection]);
 
   return (
-    <>
-      <div className="flex flex-col flex-wrap mx-auto max-w-6xl">
-        {connections.map((connection) => (
-          <div
-            key={connection.id}
-            className="group max-w-sm w-full bg-card border rounded-lg shadow-sm hover:shadow transition-all duration-200 overflow-hidden flex flex-col h-full"
-          >
-            <Link
-              href={`/connection/${connection.id}`}
-              className="p-3 cursor-pointer flex-grow"
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Database className="h-4 w-4 text-primary" />
-                <h3 className="font-medium">{connection.name}</h3>
-              </div>
-
-              <div className="text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                <div>{connection.database}</div>
-                <div>{connection.host}</div>
-                {connection.id === "added-recently" && (
-                  <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded-full text-[10px]">
-                    New
-                  </span>
-                )}
-              </div>
-            </Link>
-
-            <div className="border-t p-1 bg-muted/20 flex items-center justify-end gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                title="Edit"
-                onClick={() => handleEdit(connection)}
-                className="h-7 w-7"
-              >
-                <Edit className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                title="Delete"
-                onClick={() => handleDelete(connection.id)}
-                className="h-7 w-7"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+    <div
+      className={cn(
+        "relative w-68 h-36 rounded-md overflow-hidden cursor-pointer",
+        "bg-background border border-border",
+        "hover:bg-gray-50",
+        className
+      )}
+    >
+      {/* Connection failure indicator - top right */}
+      {!isLoading && isConnected === false && (
+        <div className="absolute top-2 right-2 z-20">
+          <div className="flex items-center gap-1 px-2 py-1 bg-red-100 border border-red-200 rounded-md">
+            <AlertCircle className="h-3 w-3 text-red-600" />
+            <span className="text-xs font-medium text-red-600">
+              Test connection failed
+            </span>
           </div>
-        ))}
-      </div>
-
-      {/* Edit Connection Dialog */}
-      {editingConnection && (
-        <ConnectionDialog
-          open={!!editingConnection}
-          onOpenChange={(open) => !open && setEditingConnection(undefined)}
-          connection={editingConnection}
-          onSave={handleUpdateConnection}
-        />
+        </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!deletingConnectionId}
-        onOpenChange={(open) => !open && setDeletingConnectionId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Connection</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this connection? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      <Link href={`/connection/${connection.id}`} className="block h-full">
+        <div className="relative z-10 p-4 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div
+              className={cn(
+                "w-10 h-10 rounded-sm flex items-center justify-center",
+                "border border-border"
+              )}
+            >
+              <Icon iconNode={elephant} />
+            </div>
+          </div>
+
+          <h3 className="text-base font-semibold text-foreground mb-1">
+            {connection.name}
+          </h3>
+
+          <div className="flex items-center gap-2 mb-auto">
+            <span className="text-xs font-medium text-muted-foreground capitalize">
+              {connection.database}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+};
+
+export function ConnectionList({ connections }: { connections: Connection[] }) {
+  return (
+    <div className="flex justify-center flex-wrap gap-4 max-w-5xl mx-auto">
+      {connections.map((connection) => (
+        <DatabaseConnectionCard key={connection.id} connection={connection} />
+      ))}
+    </div>
   );
 }
