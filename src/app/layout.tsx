@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConnectionProvider } from "./context";
 
 const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
 });
 
