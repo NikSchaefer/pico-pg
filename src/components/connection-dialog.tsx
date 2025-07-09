@@ -33,7 +33,7 @@ export function ConnectionDialog({
       toast.success(
         isEditing
           ? "Connection updated successfully"
-          : "Connection created successfully",
+          : "Connection created successfully"
       );
     } catch (error) {
       toast.error("Failed to save connection");
@@ -43,12 +43,12 @@ export function ConnectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="max-w-2xl bg-white border-slate-200">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-xl font-semibold text-slate-900">
             {isEditing ? "Edit Connection" : "New Connection"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-600">
             {isEditing
               ? "Update your database connection details."
               : "Enter your PostgreSQL database connection details."}

@@ -20,16 +20,17 @@ export function QueryEditor({ connection }: QueryEditorProps) {
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col space-y-3">
         <div className="flex justify-between items-center">
-          <label htmlFor="query" className="text-sm font-medium">
+          <label htmlFor="query" className="text-sm font-medium text-slate-700">
             SQL Query
           </label>
           <Button
             size="sm"
             onClick={handleQueryExecution}
             disabled={!query.trim() || isLoading}
+            className="bg-slate-900 hover:bg-slate-800 text-white"
           >
             {isLoading ? (
               <>
@@ -49,14 +50,14 @@ export function QueryEditor({ connection }: QueryEditorProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="SELECT * FROM users;"
-          className="font-mono h-40"
+          className="font-mono h-40 border-slate-200 focus:border-slate-400 focus:ring-slate-400"
         />
       </div>
 
       {error && (
-        <div className="p-4 border border-red-200 bg-red-50 text-red-800 rounded-md">
-          <p className="font-medium">Error</p>
-          <p className="text-sm">{error}</p>
+        <div className="p-4 border border-red-200 bg-red-50 text-red-800 rounded-lg">
+          <p className="font-medium text-red-900">Error</p>
+          <p className="text-sm text-red-700 mt-1">{error}</p>
         </div>
       )}
 

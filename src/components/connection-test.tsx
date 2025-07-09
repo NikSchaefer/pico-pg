@@ -18,11 +18,12 @@ export function ConnectionTest({ connection }: ConnectionTestProps) {
   };
 
   return (
-    <div className="flex flex-col space-y-2">
-      <Button 
-        onClick={handleTest} 
-        variant="outline" 
+    <div className="flex flex-col space-y-3">
+      <Button
+        onClick={handleTest}
+        variant="outline"
         loading={isLoading}
+        className="border-slate-200 hover:bg-slate-50"
       >
         {isLoading ? (
           <>
@@ -39,12 +40,14 @@ export function ConnectionTest({ connection }: ConnectionTestProps) {
           {isConnected ? (
             <div className="flex items-center text-green-600">
               <CheckCircle className="mr-2 h-4 w-4" />
-              <span>Connection successful</span>
+              <span className="text-sm font-medium">Connection successful</span>
             </div>
           ) : (
             <div className="flex items-center text-red-600">
               <XCircle className="mr-2 h-4 w-4" />
-              <span>{error || "Connection failed"}</span>
+              <span className="text-sm font-medium">
+                {error || "Connection failed"}
+              </span>
             </div>
           )}
         </div>

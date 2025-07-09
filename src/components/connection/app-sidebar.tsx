@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Loader2, TableIcon } from "lucide-react";
+import { Loader2, TableIcon, Database } from "lucide-react";
 import { Connection, Table } from "@/lib/types";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -31,19 +31,37 @@ export function AppSidebar({
   onTableSelect,
 }: AppSidebarProps) {
   return (
-    <Sidebar>
-      <SidebarHeader className="px-8 pt-6 pb-3">
-        <Link href="/">
-          <h1 className="font-medium text-xl">{connection.name}</h1>
+    <Sidebar className="border-r border-slate-200 bg-white/50 backdrop-blur-sm">
+      <SidebarHeader className="px-6 pt-6 pb-4">
+        <Link href="/" className="group">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
+              <Database className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <h1 className="font-semibold text-slate-900 text-lg">
+                {connection.name}
+              </h1>
+              <p className="text-xs text-slate-500">
+                {connection.host}:{connection.port}
+              </p>
+            </div>
+          </div>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+
+      <SidebarContent className="px-3">
         <SidebarGroup>
-          <SidebarGroupLabel>Tables</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-slate-500 uppercase tracking-wider px-3 py-2">
+            Tables
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             {tablesLoading ? (
               <div className="flex h-32 w-full items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                <div className="flex flex-col items-center space-y-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                  <p className="text-xs text-slate-400">Loading tables...</p>
+                </div>
               </div>
             ) : tables.length > 0 ? (
               <SidebarMenu>
@@ -55,25 +73,43 @@ export function AppSidebar({
                   >
                     <SidebarMenuButton
                       className={cn(
-                        "text-sm",
-                        selectedTable?.name === table.name && "font-semibold"
+                        "text-sm rounded-lg transition-all duration-200",
+                        selectedTable?.name === table.name
+                          ? "bg-slate-100 text-slate-900 font-medium"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                       )}
                     >
-                      <TableIcon className="mr-2 h-4 w-4" />
-                      {table.name}
+                      <TableIcon className="mr-3 h-4 w-4" />
+                      <span className="truncate">{table.name}</span>
+                      {table.schema !== "public" && (
+                        <span className="ml-auto text-xs text-slate-400 font-mono">
+                          {table.schema}
+                        </span>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
             ) : (
-              <div className="flex h-32 w-full items-center justify-center text-sm text-slate-500">
-                No tables found.
+              <div className="flex h-32 w-full items-center justify-center">
+                <div className="text-center space-y-2">
+                  <TableIcon className="h-8 w-8 text-slate-300 mx-auto" />
+                  <p className="text-sm text-slate-500">No tables found</p>
+                  <p className="text-xs text-slate-400">
+                    Try refreshing the connection
+                  </p>
+                </div>
               </div>
             )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+
+      <SidebarFooter className="px-3 py-4">
+        <div className="text-xs text-slate-400 text-center">
+          {tables.length} table{tables.length !== 1 ? "s" : ""}
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

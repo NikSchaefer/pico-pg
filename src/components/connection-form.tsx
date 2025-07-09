@@ -38,12 +38,12 @@ export function ConnectionForm({
       username: "postgres",
       password: "",
       sslMode: "require" as ConnectionOptions,
-    },
+    }
   );
 
   const handleChange = (
     field: keyof Connection,
-    value: string | number | boolean,
+    value: string | number | boolean
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -91,41 +91,42 @@ export function ConnectionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <label
             htmlFor="name"
-            className="text-sm font-medium flex items-center"
+            className="text-sm font-medium text-slate-700 flex items-center"
           >
-            Connection Name <span className="text-destructive ml-1">*</span>
+            Connection Name <span className="text-red-500 ml-1">*</span>
           </label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             placeholder="My Database"
-            className="bg-input border-border focus-visible:border-primary"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="host" className="text-sm font-medium">
-            Host <span className="text-destructive">*</span>
+          <label htmlFor="host" className="text-sm font-medium text-slate-700">
+            Host <span className="text-red-500">*</span>
           </label>
           <Input
             id="host"
             value={formData.host}
             onChange={(e) => handleChange("host", e.target.value)}
             placeholder="localhost"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="port" className="text-sm font-medium">
-            Port <span className="text-destructive">*</span>
+          <label htmlFor="port" className="text-sm font-medium text-slate-700">
+            Port <span className="text-red-500">*</span>
           </label>
           <Input
             id="port"
@@ -133,38 +134,50 @@ export function ConnectionForm({
             value={formData.port}
             onChange={(e) => handleChange("port", parseInt(e.target.value))}
             placeholder="5432"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="database" className="text-sm font-medium">
-            Database <span className="text-destructive">*</span>
+          <label
+            htmlFor="database"
+            className="text-sm font-medium text-slate-700"
+          >
+            Database <span className="text-red-500">*</span>
           </label>
           <Input
             id="database"
             value={formData.database}
             onChange={(e) => handleChange("database", e.target.value)}
             placeholder="postgres"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="username" className="text-sm font-medium">
-            Username <span className="text-destructive">*</span>
+          <label
+            htmlFor="username"
+            className="text-sm font-medium text-slate-700"
+          >
+            Username <span className="text-red-500">*</span>
           </label>
           <Input
             id="username"
             value={formData.username}
             onChange={(e) => handleChange("username", e.target.value)}
             placeholder="postgres"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-slate-700"
+          >
             Password
           </label>
           <Input
@@ -173,18 +186,22 @@ export function ConnectionForm({
             value={formData.password}
             onChange={(e) => handleChange("password", e.target.value)}
             placeholder="••••••••"
+            className="border-slate-200 focus:border-slate-400 focus:ring-slate-400"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="sslMode" className="text-sm font-medium">
+          <label
+            htmlFor="sslMode"
+            className="text-sm font-medium text-slate-700"
+          >
             SSL Mode
           </label>
           <Select
             value={formData.sslMode as string}
             onValueChange={(val) => handleChange("sslMode", val)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="border-slate-200 focus:border-slate-400 focus:ring-slate-400">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -198,11 +215,19 @@ export function ConnectionForm({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex justify-end gap-3 pt-6 border-t border-slate-200">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="border-slate-200 hover:bg-slate-50"
+        >
           Cancel
         </Button>
-        <Button type="submit">
+        <Button
+          type="submit"
+          className="bg-slate-900 hover:bg-slate-800 text-white"
+        >
           {isEditing ? "Update Connection" : "Save Connection"}
         </Button>
       </div>

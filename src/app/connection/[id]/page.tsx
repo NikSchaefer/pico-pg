@@ -6,7 +6,7 @@ import { getConnection } from "@/lib/storage";
 import { Connection, Table } from "@/lib/types";
 import { toast } from "sonner";
 import { useTables, useQuery } from "@/lib/hooks";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SqlEditor from "@/components/connection/sql-editor";
 import QueryToolbar from "@/components/connection/query-toolbar";
@@ -75,38 +75,44 @@ export default function ConnectionDetailPage({
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
+          <p className="text-sm text-slate-500">Loading connection...</p>
+        </div>
       </div>
     );
   }
 
   if (!connection) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center">
-        <p className="text-xl">Connection not found</p>
-        <Button
-          variant="outline"
-          className="mt-4"
-          onClick={() => router.push("/")}
-        >
-          Back to connections
-        </Button>
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center space-y-4">
+          <p className="text-lg text-slate-600">Connection not found</p>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/")}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to connections
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <SidebarProvider>
-      <AppSidebar
-        connection={connection}
-        tables={filteredTables}
-        tablesLoading={tablesLoading}
-        selectedTable={selectedTable}
-        onTableSelect={handleTableSelect}
-      />
-      <main className="flex-grow h-screen overflow-hidden">
-        <div className="flex-1 flex h-full flex-col overflow-hidden w-full">
+      <div className="flex flex-grow h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <AppSidebar
+          connection={connection}
+          tables={filteredTables}
+          tablesLoading={tablesLoading}
+          selectedTable={selectedTable}
+          onTableSelect={handleTableSelect}
+        />
+        <main className="flex-1 flex flex-col overflow-hidden">
           <QueryToolbar
             selectedTable={selectedTable}
             onRunQuery={handleQueryExecution}
@@ -114,19 +120,28 @@ export default function ConnectionDetailPage({
             queryEmpty={!query.trim()}
           />
 
-          <SqlEditor query={query} setQuery={setQuery} />
+          <div className="flex-1 flex flex-col min-h-0">
+            <SqlEditor query={query} setQuery={setQuery} />
 
-          {error && <QueryErrorMessage error={error} />}
+            {error && <QueryErrorMessage error={error} />}
 
-          {result ? (
-            <QueryResults result={result} />
-          ) : (
-            <div className="flex flex-col h-full items-center justify-center text-slate-500">
-              Run a query to see results
+            <div className="flex-grow overflow-x-auto overflow-y-auto">
+              {result ? (
+                <QueryResults result={result} />
+              ) : (
+                <div className="flex flex-col h-full items-center justify-center text-slate-400">
+                  <div className="text-center space-y-2">
+                    <p className="text-sm">Run a query to see results</p>
+                    <p className="text-xs">
+                      Select a table from the sidebar or write your own SQL
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        </main>
+      </div>
     </SidebarProvider>
   );
 }

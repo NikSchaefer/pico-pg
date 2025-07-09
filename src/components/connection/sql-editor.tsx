@@ -3,28 +3,28 @@ import { sql } from "@codemirror/lang-sql";
 import { tags } from "@lezer/highlight";
 import { createTheme } from "@uiw/codemirror-themes";
 
-// Custom SQL syntax highlighting theme for dark mode
+// Custom SQL syntax highlighting theme for light mode
 const sqlTheme = createTheme({
-  theme: "dark",
+  theme: "light",
   settings: {
     background: "transparent",
-    foreground: "#f2f2f2",
-    caret: "#ffffff",
-    selection: "rgba(59, 130, 246, 0.3)",
-    selectionMatch: "rgba(59, 130, 246, 0.3)",
-    lineHighlight: "rgba(255, 255, 255, 0.07)",
+    foreground: "#334155",
+    caret: "#0f172a",
+    selection: "rgba(59, 130, 246, 0.2)",
+    selectionMatch: "rgba(59, 130, 246, 0.2)",
+    lineHighlight: "rgba(0, 0, 0, 0.02)",
   },
   styles: [
-    { tag: tags.keyword, color: "#ff7b72" }, // SELECT, FROM, WHERE
-    { tag: tags.operator, color: "#79c0ff" }, // =, >, <
-    { tag: tags.string, color: "#a5d6ff" }, // String literals
-    { tag: tags.comment, color: "#8b949e", fontStyle: "italic" }, // Comments
-    { tag: tags.number, color: "#d2a8ff" }, // Numbers
-    { tag: tags.variableName, color: "#c9d1d9" }, // Column names
-    { tag: tags.typeName, color: "#ff7b72" }, // Data types
-    { tag: tags.function(tags.variableName), color: "#d2a8ff" }, // Functions
-    { tag: tags.propertyName, color: "#79c0ff" }, // Properties
-    { tag: tags.definition(tags.propertyName), color: "#ffa657" }, // Table names
+    { tag: tags.keyword, color: "#dc2626" }, // SELECT, FROM, WHERE
+    { tag: tags.operator, color: "#2563eb" }, // =, >, <
+    { tag: tags.string, color: "#059669" }, // String literals
+    { tag: tags.comment, color: "#6b7280", fontStyle: "italic" }, // Comments
+    { tag: tags.number, color: "#7c3aed" }, // Numbers
+    { tag: tags.variableName, color: "#374151" }, // Column names
+    { tag: tags.typeName, color: "#dc2626" }, // Data types
+    { tag: tags.function(tags.variableName), color: "#7c3aed" }, // Functions
+    { tag: tags.propertyName, color: "#2563eb" }, // Properties
+    { tag: tags.definition(tags.propertyName), color: "#ea580c" }, // Table names
   ],
 });
 
@@ -35,34 +35,42 @@ interface SqlEditorProps {
 
 export default function SqlEditor({ query, setQuery }: SqlEditorProps) {
   return (
-    <div className="border-b border-slate-700 sql-editor">
+    <div className="border-b border-slate-200 bg-white sql-editor">
       <style jsx global>{`
         .sql-editor .cm-editor {
-          font-family:
-            ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
             "Liberation Mono", "Courier New", monospace;
-          font-size: 16px;
+          font-size: 14px;
+          line-height: 1.5;
         }
         .sql-editor .cm-content {
-          padding: 8px 0;
+          padding: 16px 0;
         }
         .sql-editor .cm-line {
-          padding: 0 16px;
+          padding: 0 20px;
         }
         .sql-editor .cm-gutters {
           background-color: transparent;
-          color: #6c6c8a;
+          color: #9ca3af;
+          border-right: 1px solid #e5e7eb;
         }
         .sql-editor .cm-activeLineGutter {
           background-color: transparent;
+          color: #6b7280;
         }
         .sql-editor .cm-activeLine {
-          background-color: transparent;
+          background-color: rgba(59, 130, 246, 0.05);
+        }
+        .sql-editor .cm-selectionBackground {
+          background-color: rgba(59, 130, 246, 0.2);
+        }
+        .sql-editor .cm-cursor {
+          border-left: 2px solid #0f172a;
         }
       `}</style>
       <CodeMirror
         value={query}
-        height="140px"
+        height="160px"
         extensions={[sql()]}
         theme={sqlTheme}
         onChange={(value) => setQuery(value)}
