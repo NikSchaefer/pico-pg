@@ -12,6 +12,6 @@ A simple, lightweight, local-only, and open source Postgres client.
 
 ## Roadmap
 
-- [ ] _Create, modify, and delete tables/rows_
-- [ ] \*Saved queries
+- [ ] Create, modify, and delete tables/rows
+- [ ] Saved queries
 - [ ] Export/import data
