@@ -8,7 +8,7 @@ const withPWA = PWA({
 });
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  devIndicators: false,
 };
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
